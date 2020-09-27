@@ -72,20 +72,21 @@ def temp_monthly():
 # Statistics route 
 @app.route("/api/v1.0/temp/<start>")
 @app.route("/api/v1.0/temp/<start>/<end>")
-def stats(start = None, end = None):
+def stats(start=None, end=None):
     sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
 
-    if not end: 
+    if not end:
         results = session.query(*sel).\
-            filter(Measurement.date <= start).all()
+            filter(Measurement.date >= start).\
+            filter(Measurement.date <= end).all()
         temps = list(np.ravel(results))
-        return jsonify(temps)
+        return jsonify(temps = temps)
 
-     results = session.query(*sel).\
-         filter(Measurement.date >= start).\
-             filter(Measurement.date <= end).all()
-     temps = list(np.ravel(results))
-     return jsonify(temps=temps)
+    results = session.query(*sel).\
+        filter(Measurement.date >= start).\
+        filter(Measurement.date <= end).all()
+    temps = list(np.ravel(results))
+    return jsonify(temps=temps)
 
 if __name__ == "__main__":
     app.run(debug=True)
